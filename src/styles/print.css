@@ -1,0 +1,150 @@
+/* Print Stylesheet for Church Reports and Member Cards */
+@media print {
+  /* Hide UI elements that shouldn't appear on paper */
+  aside,
+  aside.sidebar,
+  .sidebar,
+  .mobile-bottom-nav,
+  .top-navbar,
+  .btn,
+  .filter-bar,
+  .quick-role-toggle,
+  .modal-close-btn,
+  .modal-footer,
+  .toast-container,
+  .no-print {
+    display: none !important;
+  }
+
+  body, html, .app-container, .main-wrapper, .page-container {
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .card, .stat-card, .profile-section-card {
+    box-shadow: none !important;
+    border: 1px solid #cccccc !important;
+    break-inside: avoid;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-header {
+    display: block !important;
+    text-align: center;
+    border-bottom: 2px solid #000000;
+    padding-bottom: 14px;
+    margin-bottom: 20px;
+  }
+
+  .print-header h1 {
+    font-size: 20pt;
+    font-weight: bold;
+    margin: 0;
+  }
+
+  .print-header p {
+    font-size: 10pt;
+    color: #444444;
+    margin: 3px 0 0;
+  }
+
+  .table {
+    border: 1px solid #000000 !important;
+    font-size: 9pt !important;
+  }
+
+  .table th {
+    background-color: #f0f0f0 !important;
+    color: #000000 !important;
+    border: 1px solid #000000 !important;
+  }
+
+  .table td {
+    border: 1px solid #dddddd !important;
+  }
+
+  .badge {
+    border: 1px solid #666666 !important;
+    color: #000000 !important;
+    background: transparent !important;
+  }
+
+  /* ID Card Printing */
+  .modal-backdrop, .modal-dialog, .modal-body, .id-cards-preview-scroll, .cert-preview-scroll {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  /* When printing from modal, hide the main page behind it */
+  body:has(.modal-backdrop) .app-layout-sidebar > .main-content-area,
+  body:has(.modal-backdrop) .sidebar,
+  body:has(.modal-backdrop) .top-header,
+  body:has(.cert-modal-dialog) .main-content-area,
+  body:has(.cert-modal-dialog) .sidebar {
+    display: none !important;
+  }
+
+  .id-cards-grid {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 20px !important;
+    justify-content: flex-start !important;
+  }
+
+  .id-card {
+    box-shadow: 0 0 0 1px #000000 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Certificate Printing - Clean Single Page Sheet */
+  .cert-modal-dialog {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .cert-sheet {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: 0 auto !important;
+    background: #ffffff !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  @page {
+    margin: 8mm;
+    size: auto;
+  }
+}
+
+.print-only {
+  display: none;
+}
+
+
