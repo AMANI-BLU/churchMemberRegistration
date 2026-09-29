@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ChurchProvider, useChurch } from './context/ChurchContext';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
@@ -28,6 +28,23 @@ import './styles/layout.css';
 import './styles/components.css';
 import './styles/print.css';
 
+const VALID_ROUTES = [
+  'dashboard',
+  'members',
+  'idcards',
+  'baptism',
+  'families',
+  'ministries',
+  'reports',
+  'settings'
+];
+
+const getTabFromLocation = () => {
+  if (typeof window === 'undefined') return 'dashboard';
+  const cleanHash = window.location.hash.replace(/^#\/?/, '').toLowerCase().trim();
+  return VALID_ROUTES.includes(cleanHash) ? cleanHash : 'dashboard';
+};
+
 const MainLayout = () => {
   const {
     isAuthenticated,
@@ -38,8 +55,44 @@ const MainLayout = () => {
     resetToDemoData
   } = useChurch();
 
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTabState] = useState(getTabFromLocation);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // Sync route handler (updates state & URL hash)
+  const handleNavigate = useCallback((tab) => {
+    const target = VALID_ROUTES.includes(tab) ? tab : 'dashboard';
+    setActiveTabState(target);
+    if (window.location.hash !== `#/${target}`) {
+      window.location.hash = `#/${target}`;
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  // Listen for browser Back / Forward buttons and manual hash changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      const route = getTabFromLocation();
+      setActiveTabState(route);
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+
+    // Ensure URL has initial hash if missing
+    if (!window.location.hash) {
+      window.location.hash = '#/dashboard';
+    }
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
+
+  // Guard: non-admin roles cannot view settings tab
+  useEffect(() => {
+    if (activeTab === 'settings' && currentRole !== 'admin') {
+      handleNavigate('dashboard');
+    }
+  }, [activeTab, currentRole, handleNavigate]);
 
   // If unauthenticated, show SaaS Login screen
   if (!isAuthenticated) {
@@ -78,8 +131,7 @@ const MainLayout = () => {
     onConfirm: () => {}
   });
 
-  // Guard: evangelists cannot access settings
-  const currentTab = activeTab === 'settings' && currentRole === 'evangelist' ? 'dashboard' : activeTab;
+  const currentTab = activeTab === 'settings' && currentRole !== 'admin' ? 'dashboard' : activeTab;
 
   // ── Member Handlers ──────────────────────────────────────────
   const handleOpenRegisterMember = () => {
@@ -103,7 +155,7 @@ const MainLayout = () => {
 
   // ── ID Card Navigation ───────────────────────────────────────
   const handleNavigateToIdCards = () => {
-    setActiveTab('idcards');
+    handleNavigate('idcards');
   };
 
   // ── Baptism Handlers ─────────────────────────────────────────
@@ -165,7 +217,7 @@ const MainLayout = () => {
       {/* Left Sidebar Navigation */}
       <Sidebar
         activeTab={currentTab}
-        onSelectTab={setActiveTab}
+        onSelectTab={handleNavigate}
         onOpenRegisterMember={handleOpenRegisterMember}
         isMobileOpen={isMobileSidebarOpen}
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
@@ -176,14 +228,14 @@ const MainLayout = () => {
         <Header
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(true)}
           onOpenRegisterMember={handleOpenRegisterMember}
-          onNavigate={setActiveTab}
+          onNavigate={handleNavigate}
         />
 
         {/* Dynamic Main Page Content */}
         <main className="page-main-viewport">
           {currentTab === 'dashboard' && (
             <Dashboard
-              onNavigate={setActiveTab}
+              onNavigate={handleNavigate}
               onOpenRegisterMember={handleOpenRegisterMember}
               onSelectMemberProfile={setSelectedProfileMemberId}
             />
@@ -224,8 +276,8 @@ const MainLayout = () => {
               onOpenAssignMinistry={handleOpenAssignMinistry}
             />
           )}
-          {currentTab === 'reports' && <Reports />}
-          {currentTab === 'settings' && currentRole === 'admin' && (
+          {activeTab === 'reports' && <Reports />}
+          {activeTab === 'settings' && (
             <Settings onPromptResetDemoData={handlePromptResetDemoData} />
           )}
         </main>

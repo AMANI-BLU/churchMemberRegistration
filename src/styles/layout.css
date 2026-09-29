@@ -453,52 +453,145 @@
   margin-bottom: 24px;
 }
 
-.dash-stat-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 18px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  box-shadow: var(--shadow-xs);
-  cursor: pointer;
-  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
-  text-align: left;
-}
-.dash-stat-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+/* ── ADMINLTE-STYLE STAT BOXES ───────────────────────────── */
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
-.dash-stat-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
+.dash-stat-box {
+  border-radius: 4px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  overflow: hidden;
+  text-align: left;
+  border: none;
+  padding: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-height: 130px;
+}
+
+.dash-stat-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.dash-stat-box__inner {
+  padding: 16px 18px 12px;
+  flex: 1;
+  position: relative;
+  z-index: 2;
+}
+
+.dash-stat-box__value {
+  font-size: 2.35rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+
+.dash-stat-box__label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.dash-stat-box__sub {
+  font-size: 0.74rem;
+  opacity: 0.88;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.dash-stat-box__icon {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  z-index: 1;
+  opacity: 0.22;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  pointer-events: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
-.dash-stat-icon--green  { background: #ecfdf5; color: #059669; }
-.dash-stat-icon--blue   { background: #eff6ff; color: #2563eb; }
-.dash-stat-icon--amber  { background: #fffbeb; color: #d97706; }
-.dash-stat-icon--rose   { background: #fff1f2; color: #e11d48; }
 
-.dash-stat-body { display: flex; flex-direction: column; min-width: 0; }
-.dash-stat-value {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  line-height: 1;
-  letter-spacing: -0.03em;
+.dash-stat-box:hover .dash-stat-box__icon {
+  transform: scale(1.12);
+  opacity: 0.35;
 }
-.dash-stat-label {
-  font-size: 0.78rem;
+
+.dash-stat-box__footer {
+  background: rgba(0, 0, 0, 0.15);
+  padding: 7px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: var(--text-muted);
-  margin-top: 4px;
-  white-space: nowrap;
+  text-decoration: none;
+  transition: background 0.15s ease;
+  z-index: 2;
+  letter-spacing: 0.01em;
+}
+
+.dash-stat-box:hover .dash-stat-box__footer {
+  background: rgba(0, 0, 0, 0.28);
+}
+
+/* 1. Teal / Cyan Box (Total Congregation) */
+.dash-stat-box--teal {
+  background: linear-gradient(135deg, #17a2b8, #117a8b);
+  color: #ffffff;
+}
+
+/* 2. Green Box (Holy Baptisms) */
+.dash-stat-box--green {
+  background: linear-gradient(135deg, #28a745, #1e7e34);
+  color: #ffffff;
+}
+
+/* 3. Yellow / Gold Box (Family Households) */
+.dash-stat-box--yellow {
+  background: linear-gradient(135deg, #ffc107, #d39e00);
+  color: #212529;
+}
+.dash-stat-box--yellow .dash-stat-box__icon {
+  color: #212529;
+  opacity: 0.2;
+}
+.dash-stat-box--yellow .dash-stat-box__footer {
+  color: #212529;
+  background: rgba(0, 0, 0, 0.12);
+}
+.dash-stat-box--yellow:hover .dash-stat-box__footer {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+/* 4. Red / Crimson Box (Ministry Groups) */
+.dash-stat-box--red {
+  background: linear-gradient(135deg, #dc3545, #bd2130);
+  color: #ffffff;
+}
+
+@media (max-width: 992px) {
+  .dash-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .dash-stats {
+    grid-template-columns: 1fr;
+  }
 }
 
 .dash-grid {

@@ -46,7 +46,18 @@ export const Header = ({
         </button>
 
         {/* Church Logo & Branding on Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+          onClick={() => onNavigate && onNavigate('dashboard')}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              onNavigate && onNavigate('dashboard');
+            }
+          }}
+          title="Return to Dashboard"
+        >
           <img
             src="/church-logo.png"
             alt="EECMY Cross"
@@ -76,24 +87,23 @@ export const Header = ({
           {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
         </button>
 
-        {/* Role Switcher Pill */}
-        <div className="role-pill" title="Toggle current user role">
-          <button
-            className={`role-pill-btn ${currentRole === 'admin' ? 'active-admin' : ''}`}
-            onClick={() => setCurrentRole('admin')}
-            type="button"
-          >
-            <Shield size={12} />
-            <span>Admin</span>
-          </button>
-          <button
-            className={`role-pill-btn ${currentRole === 'staff' || currentRole === 'evangelist' ? 'active-evan' : ''}`}
-            onClick={() => setCurrentRole('staff')}
-            type="button"
-          >
-            <UserCheck size={12} />
-            <span>Staff</span>
-          </button>
+        {/* Admin Badge */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '5px 10px',
+            background: 'var(--primary-light)',
+            color: 'var(--primary)',
+            borderRadius: 'var(--radius-full)',
+            fontSize: '0.78rem',
+            fontWeight: '700'
+          }}
+          title="Logged in as Administrator"
+        >
+          <Shield size={13} />
+          <span>Admin</span>
         </div>
 
         {/* Primary Action */}

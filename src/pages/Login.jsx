@@ -65,39 +65,6 @@ export const Login = () => {
           </p>
         </div>
 
-        {/* Quick Demo Access Bar */}
-        <div className="quick-access-box">
-          <span style={{ fontSize: '0.78rem', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Quick 1-Click Demo Access
-          </span>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginTop: '6px' }}>
-            <button
-              type="button"
-              className={`quick-login-btn ${selectedRole === 'admin' ? 'active' : ''}`}
-              onClick={() => {
-                setSelectedRole('admin');
-                setEmail('admin@eecmy-yabello.org');
-                setPassword('admin123');
-              }}
-            >
-              <Shield size={14} />
-              <span>Admin Portal</span>
-            </button>
-            <button
-              type="button"
-              className={`quick-login-btn ${selectedRole === 'staff' ? 'active' : ''}`}
-              onClick={() => {
-                setSelectedRole('staff');
-                setEmail('kes.desta@eecmy-yabello.org');
-                setPassword('staff123');
-              }}
-            >
-              <UserCheck size={14} />
-              <span>Staff / Kes View</span>
-            </button>
-          </div>
-        </div>
-
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="login-form">
           {error && (

@@ -10,19 +10,25 @@ import {
   FileText,
   Calendar,
   CheckCircle,
-  Home
+  Home,
+  CircleArrowRight,
+  PieChart
 } from 'lucide-react';
 
-// ── Stat Card ──────────────────────────────────────────────────
-const StatCard = ({ label, value, icon: Icon, onClick, subtitle }) => (
-  <button className="dash-stat-card" onClick={onClick} type="button">
-    <div className="dash-stat-icon dash-stat-icon--unified">
-      <Icon size={20} />
+// ── AdminLTE-Style Stat Box ────────────────────────────────────
+const StatCard = ({ label, value, icon: Icon, onClick, subtitle, color = 'teal' }) => (
+  <button className={`dash-stat-box dash-stat-box--${color}`} onClick={onClick} type="button">
+    <div className="dash-stat-box__inner">
+      <div className="dash-stat-box__value">{value}</div>
+      <div className="dash-stat-box__label">{label}</div>
+      {subtitle && <div className="dash-stat-box__sub">{subtitle}</div>}
     </div>
-    <div className="dash-stat-body">
-      <span className="dash-stat-value">{value}</span>
-      <span className="dash-stat-label">{label}</span>
-      {subtitle && <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>{subtitle}</span>}
+    <div className="dash-stat-box__icon">
+      <Icon size={70} strokeWidth={1.4} />
+    </div>
+    <div className="dash-stat-box__footer">
+      <span>More info</span>
+      <CircleArrowRight size={14} />
     </div>
   </button>
 );
@@ -138,45 +144,13 @@ export const Dashboard = ({ onNavigate, onOpenRegisterMember, onSelectMemberProf
               {greeting}
             </h2>
             <p className="dash-greeting__sub">
-              {settings.churchName} · {currentRole === 'admin' ? 'Administrator Portal' : 'Staff / Kes Portal'}
+              {settings.churchName} · Administrator Portal
             </p>
           </div>
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="dash-actions">
-        <button className="btn btn-primary" onClick={onOpenRegisterMember} type="button">
-          <UserPlus size={16} />
-          <span>Register New Member</span>
-        </button>
-        <button
-          className="btn btn-secondary"
-          onClick={() => onNavigate('idcards')}
-          type="button"
-        >
-          <CreditCard size={16} />
-          <span>Member ID Cards</span>
-        </button>
-        <button
-          className="btn btn-secondary"
-          onClick={() => onNavigate('baptism')}
-          type="button"
-        >
-          <Award size={16} />
-          <span>Baptism Register</span>
-        </button>
-        <button
-          className="btn btn-secondary"
-          onClick={() => onNavigate('reports')}
-          type="button"
-        >
-          <FileText size={16} />
-          <span>Monthly & Yearly Reports</span>
-        </button>
-      </div>
-
-      {/* Unified Stats Grid */}
+      {/* 4 AdminLTE-Style Colored Stat Boxes */}
       <div className="dash-stats">
         <StatCard
           label="Total Congregation"
@@ -184,6 +158,7 @@ export const Dashboard = ({ onNavigate, onOpenRegisterMember, onSelectMemberProf
           icon={Users}
           onClick={() => onNavigate('members')}
           subtitle={`${activeMembers} Active Members`}
+          color="teal"
         />
         <StatCard
           label="Holy Baptisms"
@@ -191,6 +166,7 @@ export const Dashboard = ({ onNavigate, onOpenRegisterMember, onSelectMemberProf
           icon={Award}
           onClick={() => onNavigate('baptism')}
           subtitle={`${unbaptizedCount} In Baptism Preparation`}
+          color="green"
         />
         <StatCard
           label="Family Households"
@@ -198,6 +174,7 @@ export const Dashboard = ({ onNavigate, onOpenRegisterMember, onSelectMemberProf
           icon={Home}
           onClick={() => onNavigate('families')}
           subtitle="Registered Family Units"
+          color="yellow"
         />
         <StatCard
           label="Ministry Groups"
@@ -205,6 +182,7 @@ export const Dashboard = ({ onNavigate, onOpenRegisterMember, onSelectMemberProf
           icon={Layers}
           onClick={() => onNavigate('ministries')}
           subtitle="Sanctuary Departments"
+          color="red"
         />
       </div>
 

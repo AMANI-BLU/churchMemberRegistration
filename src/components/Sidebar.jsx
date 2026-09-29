@@ -9,20 +9,16 @@ import {
   Layers,
   FileText,
   Settings as SettingsIcon,
-  Shield,
-  RotateCcw,
-  X,
-  Plus
+  X
 } from 'lucide-react';
 
 export const Sidebar = ({
   activeTab,
   onSelectTab,
-  onOpenRegisterMember,
   isMobileOpen,
   onCloseMobile
 }) => {
-  const { currentRole, setCurrentRole, settings, members, families, ministries, resetToDemoData } = useChurch();
+  const { settings, members, families, ministries } = useChurch();
 
   const baptizedCount = members.filter((m) => m.spiritualInfo?.baptismStatus === 'Baptized').length;
 
@@ -65,21 +61,6 @@ export const Sidebar = ({
             aria-label="Close menu"
           >
             <X size={20} />
-          </button>
-        </div>
-
-        {/* Quick Action Button */}
-        <div style={{ padding: '0 16px 14px' }}>
-          <button
-            className="btn btn-primary"
-            style={{ width: '100%', justifyContent: 'center' }}
-            onClick={() => {
-              onOpenRegisterMember();
-              if (onCloseMobile) onCloseMobile();
-            }}
-          >
-            <Plus size={16} />
-            <span>Register Member</span>
           </button>
         </div>
 
@@ -154,56 +135,17 @@ export const Sidebar = ({
             <span>Monthly & Annual Reports</span>
           </button>
 
-          {/* Administration - Admin Only */}
-          {currentRole === 'admin' && (
-            <>
-              <div className="sidebar-section-label" style={{ marginTop: '16px' }}>
-                System
-              </div>
-              <button
-                className={`sidebar-link ${activeTab === 'settings' ? 'active' : ''}`}
-                onClick={() => handleNavClick('settings')}
-              >
-                <SettingsIcon size={18} />
-                <span>Church Settings</span>
-              </button>
-            </>
-          )}
-        </nav>
-
-        {/* Role Card & Reset at Footer */}
-        <div className="sidebar-footer">
-          <div className="sidebar-role-card">
-            <div className="role-card-header">
-              <span className={`role-tag ${currentRole}`}>
-                <Shield size={12} />
-                {currentRole === 'admin' ? 'Administrator' : 'Staff'}
-              </span>
-              <button
-                className="btn-icon sm"
-                style={{ background: 'transparent', border: 'none', color: '#94a3b8' }}
-                onClick={resetToDemoData}
-                title="Reset to initial church demo data"
-              >
-                <RotateCcw size={14} />
-              </button>
-            </div>
-            <div className="role-card-name">
-              {currentRole === 'admin' ? 'Admin Portal' : 'Staff Access'}
-            </div>
-            <div className="role-card-desc">
-              {currentRole === 'admin'
-                ? 'Congregation registration, ID cards, baptism hub, reports & system settings.'
-                : 'Registration, family households & ordinance certificates.'}
-            </div>
-            <button
-              className="role-switcher-btn"
-              onClick={() => setCurrentRole(currentRole === 'admin' ? 'staff' : 'admin')}
-            >
-              Switch to {currentRole === 'admin' ? 'Staff' : 'Admin'} Mode
-            </button>
+          <div className="sidebar-section-label" style={{ marginTop: '16px' }}>
+            System
           </div>
-        </div>
+          <button
+            className={`sidebar-link ${activeTab === 'settings' ? 'active' : ''}`}
+            onClick={() => handleNavClick('settings')}
+          >
+            <SettingsIcon size={18} />
+            <span>Church Settings</span>
+          </button>
+        </nav>
       </aside>
     </>
   );
