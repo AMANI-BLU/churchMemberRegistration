@@ -120,6 +120,7 @@ const MainLayout = () => {
 
   const [isMinistryModalOpen, setIsMinistryModalOpen] = useState(false);
   const [ministryToEdit, setMinistryToEdit] = useState(null);
+  const [idCardsSelectedMemberIds, setIdCardsSelectedMemberIds] = useState(null);
 
   // Confirm dialog state
   const [confirmDialog, setConfirmDialog] = useState({
@@ -154,7 +155,11 @@ const MainLayout = () => {
   };
 
   // ── ID Card Navigation ───────────────────────────────────────
-  const handleNavigateToIdCards = () => {
+  const handleNavigateToIdCards = (memberIds) => {
+    if (memberIds) {
+      const arr = Array.isArray(memberIds) ? memberIds : [memberIds];
+      setIdCardsSelectedMemberIds(arr);
+    }
     handleNavigate('idcards');
   };
 
@@ -250,7 +255,7 @@ const MainLayout = () => {
             />
           )}
           {currentTab === 'idcards' && (
-            <IdCards />
+            <IdCards initialSelectedIds={idCardsSelectedMemberIds} />
           )}
           {currentTab === 'baptism' && (
             <Baptism
@@ -294,6 +299,7 @@ const MainLayout = () => {
         onClose={() => setSelectedProfileMemberId(null)}
         memberId={selectedProfileMemberId}
         onEditMember={handleOpenEditMember}
+        onOpenIdCard={handleNavigateToIdCards}
       />
       <BaptismCertificateModal
         isOpen={isCertModalOpen}

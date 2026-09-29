@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useChurch } from '../context/ChurchContext';
+import { ImagePositionModal } from '../components/ImagePositionModal';
 import {
   CreditCard,
   Printer,
@@ -14,34 +15,65 @@ import {
   ChevronDown,
   X,
   QrCode,
-  Maximize2
+  Maximize2,
+  Move
 } from 'lucide-react';
 import { RealBarcode, RealQRCode } from '../components/IdCodeGenerators';
 
-export const IdCards = () => {
-  const { settings, members, ministries } = useChurch();
+export const IdCards = ({ initialSelectedIds = null }) => {
+  const { settings, members, ministries, updateMember } = useChurch();
 
-  // UX: Starts focused on 1 member
+  // UX: Starts focused on targeted member(s) or default first member
   const [selectedIds, setSelectedIds] = useState(() => {
+    if (initialSelectedIds) {
+      const arr = Array.isArray(initialSelectedIds) ? initialSelectedIds : [initialSelectedIds];
+      if (arr.length > 0) return arr;
+    }
     return members.length > 0 ? [members[0].id] : [];
   });
+
+  // Sync selection whenever initialSelectedIds prop changes (e.g. user clicked ID card from members list)
+  useEffect(() => {
+    if (initialSelectedIds) {
+      const arr = Array.isArray(initialSelectedIds) ? initialSelectedIds : [initialSelectedIds];
+      if (arr.length > 0) {
+        setSelectedIds(arr);
+      }
+    }
+  }, [initialSelectedIds]);
 
   const [activeSide, setActiveSide] = useState('both'); // 'front', 'back', 'both'
   const [cardTheme, setCardTheme] = useState('sapphire'); // 'sapphire', 'slate'
   const [searchQuery, setSearchQuery] = useState('');
   const [ministryFilter, setMinistryFilter] = useState('ALL');
   const [qrModalMember, setQrModalMember] = useState(null);
+  const [adjustPhotoMember, setAdjustPhotoMember] = useState(null);
+
+  const isFiltering = searchQuery.trim().length > 0 || ministryFilter !== 'ALL';
 
   // Filtered members matching current search/filters
   const filteredMemberList = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
     return members.filter((m) => {
-      const q = searchQuery.toLowerCase().trim();
       const fullName = `${m.firstName} ${m.lastName}`.toLowerCase();
+      const memberId = (m.memberId || '').toLowerCase();
+      const phone = (m.phone || '').toLowerCase();
+      const email = (m.email || '').toLowerCase();
+      const address = (m.address || '').toLowerCase();
+      const role = (m.familyRole || '').toLowerCase();
+      const occupation = (m.occupation || '').toLowerCase();
+      const baptismStatus = (m.spiritualInfo?.baptismStatus || '').toLowerCase();
+
       const matchesSearch =
         !q ||
         fullName.includes(q) ||
-        (m.memberId && m.memberId.toLowerCase().includes(q)) ||
-        (m.phone && m.phone.toLowerCase().includes(q));
+        memberId.includes(q) ||
+        phone.includes(q) ||
+        email.includes(q) ||
+        address.includes(q) ||
+        role.includes(q) ||
+        occupation.includes(q) ||
+        baptismStatus.includes(q);
 
       const matchesMinistry =
         ministryFilter === 'ALL' || (m.ministryIds || []).includes(ministryFilter);
@@ -52,8 +84,17 @@ export const IdCards = () => {
 
   // Selected members for card rendering
   const displayMembers = useMemo(() => {
+    if (isFiltering) {
+      const selectedInFilter = filteredMemberList.filter((m) =>
+        selectedIds.includes(m.id) || selectedIds.includes(m.memberId)
+      );
+      if (selectedInFilter.length > 0 && selectedIds.length === 1) {
+        return selectedInFilter;
+      }
+      return filteredMemberList;
+    }
     return members.filter((m) => selectedIds.includes(m.id) || selectedIds.includes(m.memberId));
-  }, [members, selectedIds]);
+  }, [members, filteredMemberList, selectedIds, isFiltering]);
 
   // Handle single member selection from dropdown
   const handleSelectSingleMember = (memberId) => {
@@ -61,24 +102,15 @@ export const IdCards = () => {
     setSelectedIds([memberId]);
   };
 
-  // Toggle selection for a member
-  const handleToggleMember = (id) => {
-    setSelectedIds((prev) => {
-      if (prev.includes(id)) {
-        return prev.length > 1 ? prev.filter((item) => item !== id) : prev;
-      } else {
-        return [...prev, id];
-      }
-    });
-  };
-
   const handleSelectAll = () => {
-    setSelectedIds(members.map((m) => m.id));
+    const targetList = isFiltering ? filteredMemberList : members;
+    setSelectedIds(targetList.map((m) => m.id));
   };
 
   const handleResetToSingle = () => {
-    if (members.length > 0) {
-      setSelectedIds([members[0].id]);
+    const targetList = isFiltering ? filteredMemberList : members;
+    if (targetList.length > 0) {
+      setSelectedIds([targetList[0].id]);
     }
   };
 
@@ -129,9 +161,15 @@ export const IdCards = () => {
                 style={{ fontWeight: '600', padding: '7px 12px', fontSize: '0.84rem', flex: 1 }}
               >
                 <option value="" disabled={isSingle}>
-                  {isAllSelected ? `— All Members Selected (${members.length}) —` : `— ${selectedIds.length} Members Selected —`}
+                  {filteredMemberList.length === 0
+                    ? '— No matching members found —'
+                    : isFiltering
+                    ? `— Showing ${displayMembers.length} of ${filteredMemberList.length} Search Results —`
+                    : isAllSelected
+                    ? `— All Members Selected (${members.length}) —`
+                    : `— ${selectedIds.length} Members Selected —`}
                 </option>
-                {members.map((m) => (
+                {filteredMemberList.map((m) => (
                   <option key={m.id} value={m.id}>
                     {m.firstName} {m.lastName} ({m.memberId}) — {m.status}
                   </option>
@@ -145,14 +183,16 @@ export const IdCards = () => {
                 type="button"
                 className={`btn btn-sm ${isAllSelected ? 'btn-primary' : 'btn-secondary'}`}
                 onClick={handleSelectAll}
+                disabled={filteredMemberList.length === 0}
               >
                 <Users size={14} />
-                <span>Select All ({members.length})</span>
+                <span>Select All ({filteredMemberList.length})</span>
               </button>
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
                 onClick={handleResetToSingle}
+                disabled={filteredMemberList.length === 0}
               >
                 <User size={14} />
                 <span>Focus Single</span>
@@ -212,47 +252,41 @@ export const IdCards = () => {
             </div>
 
             {/* Search Input */}
-            <div className="search-input-wrapper" style={{ maxWidth: '200px' }}>
+            <div className="search-input-wrapper" style={{ minWidth: '220px', position: 'relative' }}>
               <Search size={13} className="search-icon-inside" />
               <input
                 type="text"
-                placeholder="Search member name..."
+                placeholder="Search by name, ID, phone..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="search-input"
-                style={{ padding: '5px 8px 5px 28px', fontSize: '0.78rem' }}
+                style={{ padding: '5px 28px 5px 28px', fontSize: '0.78rem', width: '100%' }}
               />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  style={{
+                    position: 'absolute',
+                    right: '8px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    padding: '2px',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                  title="Clear search"
+                >
+                  <X size={12} />
+                </button>
+              )}
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Member Selector Chips */}
-      <div className="id-card-member-chips no-print" style={{ borderRadius: 'var(--radius-lg)', marginBottom: '20px', border: '1px solid var(--border-color)', background: '#ffffff', padding: '10px 14px' }}>
-        <span style={{ fontSize: '0.74rem', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', marginRight: '6px', flexShrink: 0 }}>
-          Toggle Card ({selectedIds.length} active):
-        </span>
-        {filteredMemberList.map((m) => {
-          const isSelected = selectedIds.includes(m.id);
-          return (
-            <button
-              key={m.id}
-              className={`member-chip ${isSelected ? 'selected' : ''}`}
-              onClick={() => handleToggleMember(m.id)}
-              type="button"
-            >
-              <span className="chip-avatar" style={{ overflow: 'hidden' }}>
-                {m.photo ? (
-                  <img src={m.photo} alt={m.firstName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <span>{m.firstName.charAt(0)}{m.lastName.charAt(0)}</span>
-                )}
-              </span>
-              <span className="chip-name">{m.firstName} {m.lastName}</span>
-              {isSelected && <Check size={12} className="chip-check" />}
-            </button>
-          );
-        })}
       </div>
 
       {/* Main Preview Area */}
@@ -325,7 +359,18 @@ export const IdCards = () => {
                         <div className="id-card-body">
                           {/* Avatar / Photo Frame */}
                           <div className="id-avatar-frame">
-                            <div className="id-avatar" style={{ overflow: 'hidden' }}>
+                            <div
+                              className="id-avatar"
+                              style={{
+                                overflow: 'hidden',
+                                cursor: member.photo ? 'pointer' : 'default',
+                                position: 'relative'
+                              }}
+                              onClick={() => {
+                                if (member.photo) setAdjustPhotoMember(member);
+                              }}
+                              title={member.photo ? 'Click to adjust photo framing for ID Card' : ''}
+                            >
                               {member.photo ? (
                                 <img
                                   src={member.photo}
@@ -336,6 +381,34 @@ export const IdCards = () => {
                                 <span>{member.firstName.charAt(0)}{member.lastName.charAt(0)}</span>
                               )}
                             </div>
+                            {member.photo && (
+                              <button
+                                type="button"
+                                className="no-print"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setAdjustPhotoMember(member);
+                                }}
+                                style={{
+                                  marginTop: '3px',
+                                  fontSize: '0.62rem',
+                                  padding: '2px 6px',
+                                  background: 'rgba(30, 58, 138, 0.08)',
+                                  color: 'var(--primary)',
+                                  border: '1px solid rgba(30, 58, 138, 0.2)',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '2px',
+                                  fontWeight: '600'
+                                }}
+                                title="Adjust Photo Position & Framing"
+                              >
+                                <Move size={9} />
+                                <span>Fix Photo</span>
+                              </button>
+                            )}
                           </div>
 
                           {/* Member Details */}
@@ -440,16 +513,33 @@ export const IdCards = () => {
               })}
             </div>
           ) : (
-            <div className="empty-state">
+            <div className="empty-state" style={{ padding: '40px 20px', textAlign: 'center' }}>
               <div className="empty-state-icon">
                 <CreditCard size={28} />
               </div>
-              <h4>No Member Selected</h4>
-              <p>Select a member from the dropdown above or click a recipient chip to preview their ID badge.</p>
-              <button className="btn btn-primary" onClick={handleResetToSingle}>
-                <User size={16} />
-                <span>Select First Member</span>
-              </button>
+              <h4>{isFiltering ? 'No Matching Members Found' : 'No Member Selected'}</h4>
+              <p style={{ maxWidth: '420px', margin: '8px auto 16px', color: 'var(--text-muted)' }}>
+                {isFiltering
+                  ? `No church members match your search criteria. Try searching with a different name or member ID.`
+                  : 'Select a member from the dropdown above to preview their official church ID badge.'}
+              </p>
+              {isFiltering ? (
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setMinistryFilter('ALL');
+                  }}
+                >
+                  <X size={14} />
+                  <span>Clear Search Filters</span>
+                </button>
+              ) : (
+                <button className="btn btn-primary" onClick={handleResetToSingle}>
+                  <User size={16} />
+                  <span>Select First Member</span>
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -503,6 +593,24 @@ export const IdCards = () => {
             </button>
           </div>
         </div>
+      )}
+
+      {adjustPhotoMember && (
+        <ImagePositionModal
+          isOpen={!!adjustPhotoMember}
+          imageSrc={adjustPhotoMember.rawPhoto || adjustPhotoMember.photo}
+          initialPosition={adjustPhotoMember.photoPosition}
+          memberName={`${adjustPhotoMember.firstName} ${adjustPhotoMember.lastName}`}
+          onSave={(croppedUrl, positionMetadata) => {
+            updateMember(adjustPhotoMember.id, {
+              photo: croppedUrl,
+              rawPhoto: positionMetadata.rawPhoto || adjustPhotoMember.rawPhoto || adjustPhotoMember.photo,
+              photoPosition: positionMetadata
+            });
+            setAdjustPhotoMember(null);
+          }}
+          onClose={() => setAdjustPhotoMember(null)}
+        />
       )}
     </div>
   );

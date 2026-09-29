@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useChurch } from '../context/ChurchContext';
+import { ImagePositionModal } from './ImagePositionModal';
 import {
   UserPlus,
   Edit2,
@@ -16,7 +17,8 @@ import {
   Sparkles,
   Users,
   Upload,
-  Camera
+  Camera,
+  Move
 } from 'lucide-react';
 
 // ── Wizard Step Indicator ──────────────────────────────────────
@@ -66,6 +68,8 @@ export const MemberModal = ({ isOpen, onClose, memberToEdit = null }) => {
         firstName: memberToEdit.firstName || '',
         lastName: memberToEdit.lastName || '',
         photo: memberToEdit.photo || '',
+        rawPhoto: memberToEdit.rawPhoto || memberToEdit.photo || '',
+        photoPosition: memberToEdit.photoPosition || null,
         gender: memberToEdit.gender || 'Male',
         dob: memberToEdit.dob || '',
         phone: memberToEdit.phone || '',
@@ -92,6 +96,8 @@ export const MemberModal = ({ isOpen, onClose, memberToEdit = null }) => {
       firstName: '',
       lastName: '',
       photo: '',
+      rawPhoto: '',
+      photoPosition: null,
       gender: 'Male',
       dob: '',
       phone: '',
@@ -117,6 +123,7 @@ export const MemberModal = ({ isOpen, onClose, memberToEdit = null }) => {
   const [formData, setFormData] = useState(getInitialState);
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState({});
+  const [isPositionModalOpen, setIsPositionModalOpen] = useState(false);
 
   // ── Family Mode State: 'new', 'existing', 'none' ─────────────
   const [familyMode, setFamilyMode] = useState('none');
@@ -178,19 +185,36 @@ export const MemberModal = ({ isOpen, onClose, memberToEdit = null }) => {
   const handlePhotoUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      alert('Please select an image smaller than 2MB.');
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Please select an image smaller than 5MB.');
       return;
     }
     const reader = new FileReader();
     reader.onload = (event) => {
-      setFormData((prev) => ({ ...prev, photo: event.target.result }));
+      const dataUrl = event.target.result;
+      setFormData((prev) => ({
+        ...prev,
+        photo: dataUrl,
+        rawPhoto: dataUrl,
+        photoPosition: null
+      }));
+      setIsPositionModalOpen(true);
     };
     reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleSaveFraming = (croppedUrl, positionMetadata) => {
+    setFormData((prev) => ({
+      ...prev,
+      photo: croppedUrl,
+      rawPhoto: positionMetadata.rawPhoto || prev.rawPhoto,
+      photoPosition: positionMetadata
+    }));
   };
 
   const handleRemovePhoto = () => {
-    setFormData((prev) => ({ ...prev, photo: '' }));
+    setFormData((prev) => ({ ...prev, photo: '', rawPhoto: '', photoPosition: null }));
   };
 
   // ── Form Input Handlers ───────────────────────────────────────
@@ -437,8 +461,14 @@ export const MemberModal = ({ isOpen, onClose, memberToEdit = null }) => {
                       justifyContent: 'center',
                       overflow: 'hidden',
                       flexShrink: 0,
-                      border: '2px solid var(--border-color)'
+                      border: '2px solid var(--border-color)',
+                      cursor: formData.photo ? 'pointer' : 'default',
+                      position: 'relative'
                     }}
+                    onClick={() => {
+                      if (formData.photo) setIsPositionModalOpen(true);
+                    }}
+                    title={formData.photo ? 'Click to adjust position & crop' : ''}
                   >
                     {formData.photo ? (
                       <img
@@ -452,7 +482,7 @@ export const MemberModal = ({ isOpen, onClose, memberToEdit = null }) => {
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Member Profile Photo (Optional)</span>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                       <label className="btn btn-secondary btn-sm" style={{ cursor: 'pointer', margin: 0 }}>
                         <Upload size={13} />
                         <span>{formData.photo ? 'Change Photo' : 'Upload Photo'}</span>
@@ -464,18 +494,33 @@ export const MemberModal = ({ isOpen, onClose, memberToEdit = null }) => {
                         />
                       </label>
                       {formData.photo && (
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={handleRemovePhoto}
-                        >
-                          <Trash2 size={13} />
-                          <span>Remove</span>
-                        </button>
+                        <>
+                          <button
+                            type="button"
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => setIsPositionModalOpen(true)}
+                            style={{
+                              background: 'var(--primary-light)',
+                              color: 'var(--primary)',
+                              borderColor: 'var(--primary)'
+                            }}
+                          >
+                            <Move size={13} />
+                            <span>Adjust Position</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline-danger"
+                            onClick={handleRemovePhoto}
+                          >
+                            <Trash2 size={13} />
+                            <span>Remove</span>
+                          </button>
+                        </>
                       )}
                     </div>
                     <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                      Used on Member ID Card and Church Profile. (Max 2MB)
+                      Used on Member ID Card and Church Profile. Zoom, pan, and center face with "Adjust Position".
                     </span>
                   </div>
                 </div>
@@ -1005,6 +1050,17 @@ export const MemberModal = ({ isOpen, onClose, memberToEdit = null }) => {
           </div>
         </form>
       </div>
+
+      {isPositionModalOpen && (
+        <ImagePositionModal
+          isOpen={isPositionModalOpen}
+          imageSrc={formData.rawPhoto || formData.photo}
+          initialPosition={formData.photoPosition}
+          memberName={`${formData.firstName} ${formData.lastName}`.trim() || 'Member'}
+          onSave={handleSaveFraming}
+          onClose={() => setIsPositionModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

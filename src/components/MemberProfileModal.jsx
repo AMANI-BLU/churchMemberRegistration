@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useChurch } from '../context/ChurchContext';
+import { ImagePositionModal } from './ImagePositionModal';
 import {
   User,
   Edit2,
@@ -13,14 +14,17 @@ import {
   Home,
   Layers,
   Printer,
-  CreditCard
+  CreditCard,
+  Move,
+  Camera
 } from 'lucide-react';
 
 export const MemberProfileModal = ({
   isOpen,
   onClose,
   memberId,
-  onEditMember
+  onEditMember,
+  onOpenIdCard
 }) => {
   const {
     getMemberById,
@@ -28,8 +32,11 @@ export const MemberProfileModal = ({
     getFamilyMembers,
     ministries,
     settings,
-    toggleMemberStatus
+    toggleMemberStatus,
+    updateMember
   } = useChurch();
+
+  const [isPositionModalOpen, setIsPositionModalOpen] = useState(false);
 
   if (!isOpen || !memberId) return null;
 
@@ -44,6 +51,14 @@ export const MemberProfileModal = ({
     window.print();
   };
 
+  const handleSaveFraming = (croppedUrl, positionMetadata) => {
+    updateMember(member.id, {
+      photo: croppedUrl,
+      rawPhoto: positionMetadata.rawPhoto || member.rawPhoto || member.photo,
+      photoPosition: positionMetadata
+    });
+  };
+
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-dialog lg animate-scale-up" onClick={(e) => e.stopPropagation()}>
@@ -56,6 +71,16 @@ export const MemberProfileModal = ({
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+            {member.photo && (
+              <button
+                className="btn btn-secondary btn-sm no-print"
+                onClick={() => setIsPositionModalOpen(true)}
+                title="Adjust Photo Position & Framing"
+              >
+                <Move size={14} />
+                <span>Adjust Photo</span>
+              </button>
+            )}
             <button className="btn btn-secondary btn-sm no-print" onClick={handlePrint} title="Print Member Record">
               <Printer size={15} />
               <span>Print Profile</span>
@@ -87,7 +112,19 @@ export const MemberProfileModal = ({
 
           {/* Profile Hero Card */}
           <div className="profile-hero">
-            <div className="avatar avatar-lg" style={{ flexShrink: 0, overflow: 'hidden' }}>
+            <div
+              className="avatar avatar-lg"
+              style={{
+                flexShrink: 0,
+                overflow: 'hidden',
+                position: 'relative',
+                cursor: member.photo ? 'pointer' : 'default'
+              }}
+              onClick={() => {
+                if (member.photo) setIsPositionModalOpen(true);
+              }}
+              title={member.photo ? 'Click to adjust photo framing & position' : ''}
+            >
               {member.photo ? (
                 <img
                   src={member.photo}
@@ -119,7 +156,17 @@ export const MemberProfileModal = ({
                 )}
               </div>
             </div>
-            <div className="no-print" style={{ marginLeft: 'auto' }}>
+            <div className="no-print" style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
+              {member.photo && (
+                <button
+                  className="btn btn-sm btn-secondary"
+                  onClick={() => setIsPositionModalOpen(true)}
+                  title="Adjust Image Framing"
+                >
+                  <Move size={13} />
+                  <span>Fix Photo</span>
+                </button>
+              )}
               <button
                 className={`btn btn-sm ${member.status === 'Active' ? 'btn-secondary' : 'btn-primary'}`}
                 onClick={() => toggleMemberStatus(member.id)}
@@ -343,8 +390,23 @@ export const MemberProfileModal = ({
                   Status: <strong>{member.status}</strong> • Registered: <strong>{member.registeredAt || 'Recorded'}</strong> by {member.registeredBy || 'Admin'}
                 </div>
               </div>
-              <div className="member-id-pill" style={{ fontSize: '0.86rem', padding: '4px 10px' }}>
-                {settings.churchName}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="member-id-pill" style={{ fontSize: '0.86rem', padding: '4px 10px' }}>
+                  {settings.churchName}
+                </div>
+                {onOpenIdCard && (
+                  <button
+                    className="btn btn-secondary btn-sm no-print"
+                    onClick={() => {
+                      onClose();
+                      onOpenIdCard([member.id]);
+                    }}
+                    title="View & Print Member ID Card"
+                  >
+                    <CreditCard size={14} />
+                    <span>View ID Badge</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -352,6 +414,19 @@ export const MemberProfileModal = ({
 
         {/* Footer */}
         <div className="modal-footer no-print">
+          {onOpenIdCard && (
+            <button
+              className="btn btn-secondary"
+              onClick={() => {
+                onClose();
+                onOpenIdCard([member.id]);
+              }}
+              style={{ marginRight: 'auto' }}
+            >
+              <CreditCard size={15} />
+              <span>Generate ID Badge</span>
+            </button>
+          )}
           <button className="btn btn-secondary" onClick={onClose}>
             Close
           </button>
@@ -367,6 +442,17 @@ export const MemberProfileModal = ({
           </button>
         </div>
       </div>
+
+      {isPositionModalOpen && member.photo && (
+        <ImagePositionModal
+          isOpen={isPositionModalOpen}
+          imageSrc={member.rawPhoto || member.photo}
+          initialPosition={member.photoPosition}
+          memberName={`${member.firstName} ${member.lastName}`}
+          onSave={handleSaveFraming}
+          onClose={() => setIsPositionModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
