@@ -21,6 +21,17 @@ import {
   Move
 } from 'lucide-react';
 
+// ── Form Field Wrapper (must be outside MemberModal to avoid remount on every render) ──
+const Field = ({ label, required, error, children }) => (
+  <div className={`form-group ${error ? 'has-error' : ''}`}>
+    <label className="form-label">
+      {label} {required && <span style={{ color: 'var(--danger)' }}>*</span>}
+    </label>
+    {children}
+    {error && <span className="form-error-msg">{error}</span>}
+  </div>
+);
+
 // ── Wizard Step Indicator ──────────────────────────────────────
 const WizardProgress = ({ currentStep, steps, onStepClick }) => (
   <div className="wizard-progress">
@@ -354,16 +365,6 @@ export const MemberModal = ({ isOpen, onClose, memberToEdit = null }) => {
       onClose();
     }
   };
-
-  const Field = ({ label, required, error, children }) => (
-    <div className={`form-group ${error ? 'has-error' : ''}`}>
-      <label className="form-label">
-        {label} {required && <span style={{ color: 'var(--danger)' }}>*</span>}
-      </label>
-      {children}
-      {error && <span className="form-error-msg">{error}</span>}
-    </div>
-  );
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
