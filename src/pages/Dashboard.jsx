@@ -102,16 +102,21 @@ const MinistrySummaryRow = ({ ministry, memberCount, onNavigate }) => (
 
 // ── Main Dashboard ─────────────────────────────────────────────
 export const Dashboard = ({ onNavigate, onOpenRegisterMember, onSelectMemberProfile }) => {
-  const { members, families, ministries, currentRole, settings } = useChurch();
+  const { members = [], families = [], ministries = [], currentRole, settings = {} } = useChurch();
 
-  const totalMembers    = members.length;
-  const activeMembers   = members.filter((m) => m.status === 'Active').length;
-  const baptizedMembers = members.filter((m) => m.spiritualInfo?.baptismStatus === 'Baptized').length;
+  const safeMembers = Array.isArray(members) ? members : [];
+  const safeFamilies = Array.isArray(families) ? families : [];
+  const safeMinistries = Array.isArray(ministries) ? ministries : [];
+  const churchName = settings?.churchName || 'EECMY YABELLO';
+
+  const totalMembers    = safeMembers.length;
+  const activeMembers   = safeMembers.filter((m) => m?.status === 'Active').length;
+  const baptizedMembers = safeMembers.filter((m) => m?.spiritualInfo?.baptismStatus === 'Baptized').length;
   const unbaptizedCount = totalMembers - baptizedMembers;
 
   const currentYear     = new Date().getFullYear();
-  const newThisYear     = members.filter((m) => m.registeredAt?.startsWith(String(currentYear))).length;
-  const recentMembers   = [...members].sort((a, b) => (b.registeredAt || '').localeCompare(a.registeredAt || '')).slice(0, 6);
+  const newThisYear     = safeMembers.filter((m) => m?.registeredAt?.startsWith(String(currentYear))).length;
+  const recentMembers   = [...safeMembers].sort((a, b) => (b?.registeredAt || '').localeCompare(a?.registeredAt || '')).slice(0, 6);
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
@@ -144,7 +149,7 @@ export const Dashboard = ({ onNavigate, onOpenRegisterMember, onSelectMemberProf
               {greeting}
             </h2>
             <p className="dash-greeting__sub">
-              {settings.churchName} · Administrator Portal
+              {churchName} · Administrator Portal
             </p>
           </div>
         </div>
@@ -170,7 +175,7 @@ export const Dashboard = ({ onNavigate, onOpenRegisterMember, onSelectMemberProf
         />
         <StatCard
           label="Family Households"
-          value={families.length}
+          value={safeFamilies.length}
           icon={Home}
           onClick={() => onNavigate('families')}
           subtitle="Registered Family Units"
@@ -178,7 +183,7 @@ export const Dashboard = ({ onNavigate, onOpenRegisterMember, onSelectMemberProf
         />
         <StatCard
           label="Ministry Groups"
-          value={ministries.length}
+          value={safeMinistries.length}
           icon={Layers}
           onClick={() => onNavigate('ministries')}
           subtitle="Sanctuary Departments"
@@ -214,9 +219,9 @@ export const Dashboard = ({ onNavigate, onOpenRegisterMember, onSelectMemberProf
             onAction={() => onNavigate('ministries')}
           />
           <div className="dash-list">
-            {ministries.length > 0 ? (
-              ministries.slice(0, 6).map((min) => {
-                const count = members.filter((m) => (m.ministryIds || []).includes(min.id)).length;
+            {safeMinistries.length > 0 ? (
+              safeMinistries.slice(0, 6).map((min) => {
+                const count = safeMembers.filter((m) => (m?.ministryIds || []).includes(min.id)).length;
                 return (
                   <MinistrySummaryRow
                     key={min.id}

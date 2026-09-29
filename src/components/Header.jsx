@@ -5,20 +5,21 @@ import {
   Plus,
   Shield,
   Calendar,
-  UserCheck,
   Sun,
   Moon,
-  LogOut
+  LogOut,
+  User
 } from 'lucide-react';
 
 export const Header = ({
   onToggleMobileSidebar,
   onOpenRegisterMember,
-  onNavigate
+  onNavigate,
+  onRequestLogout
 }) => {
   const {
+    user,
     currentRole,
-    setCurrentRole,
     settings,
     theme,
     toggleTheme,
@@ -31,6 +32,8 @@ export const Header = ({
     day: 'numeric',
     year: 'numeric'
   });
+
+  const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || (currentRole === 'admin' ? 'Admin' : 'Staff');
 
   return (
     <header className="top-header no-print">
@@ -64,8 +67,8 @@ export const Header = ({
             style={{ width: '28px', height: '28px', objectFit: 'contain' }}
           />
           <div className="header-church-info">
-            <span className="header-church-name">{settings.churchName}</span>
-            <span className="header-church-sub">{settings.address || 'Yabello, Ethiopia'}</span>
+            <span className="header-church-name">{settings?.churchName || 'EECMY YABELLO'}</span>
+            <span className="header-church-sub">{settings?.address || 'Yabello, Ethiopia'}</span>
           </div>
         </div>
       </div>
@@ -87,7 +90,7 @@ export const Header = ({
           {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
         </button>
 
-        {/* Admin Badge */}
+        {/* User Account / Role Badge */}
         <div
           style={{
             display: 'flex',
@@ -100,10 +103,10 @@ export const Header = ({
             fontSize: '0.78rem',
             fontWeight: '700'
           }}
-          title="Logged in as Administrator"
+          title={user?.email ? `Signed in as ${user.email}` : 'Logged in'}
         >
-          <Shield size={13} />
-          <span>Admin</span>
+          <User size={13} />
+          <span>{displayName}</span>
         </div>
 
         {/* Primary Action */}
@@ -120,7 +123,7 @@ export const Header = ({
         <button
           type="button"
           className="btn-icon sm"
-          onClick={logout}
+          onClick={onRequestLogout || logout}
           title="Sign out of congregation portal"
           style={{ color: 'var(--danger)', borderColor: 'var(--danger-border)' }}
         >
@@ -130,4 +133,3 @@ export const Header = ({
     </header>
   );
 };
-

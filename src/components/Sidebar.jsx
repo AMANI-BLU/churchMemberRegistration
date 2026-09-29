@@ -18,7 +18,7 @@ export const Sidebar = ({
   isMobileOpen,
   onCloseMobile
 }) => {
-  const { settings, members, families, ministries } = useChurch();
+  const { settings, members, families, ministries, pendingUsersCount } = useChurch();
 
   const baptizedCount = members.filter((m) => m.spiritualInfo?.baptismStatus === 'Baptized').length;
 
@@ -46,8 +46,8 @@ export const Sidebar = ({
               />
             </div>
             <div className="sidebar-brand-info">
-              <div className="sidebar-brand-title" title={settings.churchName}>
-                {settings.churchName}
+              <div className="sidebar-brand-title" title={settings?.churchName || 'EECMY YABELLO'}>
+                {settings?.churchName || 'EECMY YABELLO'}
               </div>
               <div className="sidebar-brand-sub">Management & Registry</div>
             </div>
@@ -144,6 +144,11 @@ export const Sidebar = ({
           >
             <SettingsIcon size={18} />
             <span>Church Settings</span>
+            {pendingUsersCount > 0 && (
+              <span className="badge-counter" style={{ background: '#ef4444', color: '#fff' }}>
+                {pendingUsersCount}
+              </span>
+            )}
           </button>
         </nav>
       </aside>

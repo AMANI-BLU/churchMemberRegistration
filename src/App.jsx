@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ChurchProvider, useChurch } from './context/ChurchContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Toast } from './components/Toast';
@@ -45,14 +46,57 @@ const getTabFromLocation = () => {
   return VALID_ROUTES.includes(cleanHash) ? cleanHash : 'dashboard';
 };
 
+const LoadingScreen = () => (
+  <div
+    style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'var(--bg-app, #f8fafc)'
+    }}
+  >
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+      <img
+        src="/church-logo.png"
+        alt="Logo"
+        style={{ width: '52px', height: '52px', objectFit: 'contain' }}
+      />
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          color: 'var(--text-secondary, #64748b)',
+          fontSize: '0.9rem',
+          fontWeight: 500
+        }}
+      >
+        <span
+          className="animate-spin"
+          style={{
+            width: '18px',
+            height: '18px',
+            border: '2px solid var(--primary, #2563eb)',
+            borderTopColor: 'transparent',
+            borderRadius: '50%',
+            display: 'inline-block'
+          }}
+        ></span>
+        <span>Initializing Congregation Portal...</span>
+      </div>
+    </div>
+  </div>
+);
+
 const MainLayout = () => {
   const {
-    isAuthenticated,
     currentRole,
     deleteMember,
     deleteFamily,
     deleteMinistry,
-    resetToDemoData
+    resetToDemoData,
+    logout
   } = useChurch();
 
   const [activeTab, setActiveTabState] = useState(getTabFromLocation);
@@ -77,8 +121,7 @@ const MainLayout = () => {
 
     window.addEventListener('hashchange', handleHashChange);
 
-    // Ensure URL has initial hash if missing
-    if (!window.location.hash) {
+    if (!window.location.hash || window.location.hash === '#/login') {
       window.location.hash = '#/dashboard';
     }
 
@@ -94,12 +137,7 @@ const MainLayout = () => {
     }
   }, [activeTab, currentRole, handleNavigate]);
 
-  // If unauthenticated, show SaaS Login screen
-  if (!isAuthenticated) {
-    return <Login />;
-  }
-
-  // Modals state
+  // Modals state (Unconditional hooks)
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [memberToEdit, setMemberToEdit] = useState(null);
 
@@ -128,11 +166,27 @@ const MainLayout = () => {
     title: '',
     message: '',
     confirmText: 'Confirm',
+    cancelText: 'Cancel',
     isDangerous: false,
+    iconType: 'danger',
     onConfirm: () => {}
   });
 
   const currentTab = activeTab === 'settings' && currentRole !== 'admin' ? 'dashboard' : activeTab;
+
+  // ── Logout Confirmation ───────────────────────────────────────
+  const handlePromptLogout = useCallback(() => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Sign Out',
+      message: 'Are you sure you want to sign out of the EECMY congregation portal?',
+      confirmText: 'Sign Out',
+      cancelText: 'Stay Logged In',
+      isDangerous: true,
+      iconType: 'logout',
+      onConfirm: () => logout()
+    });
+  }, [logout]);
 
   // ── Member Handlers ──────────────────────────────────────────
   const handleOpenRegisterMember = () => {
@@ -149,7 +203,9 @@ const MainLayout = () => {
       title: 'Remove Church Member',
       message: `Remove "${member.firstName} ${member.lastName}" from the congregation directory? This action cannot be undone.`,
       confirmText: 'Remove Member',
+      cancelText: 'Cancel',
       isDangerous: true,
+      iconType: 'danger',
       onConfirm: () => deleteMember(member.id)
     });
   };
@@ -186,7 +242,9 @@ const MainLayout = () => {
       title: 'Delete Ministry Group',
       message: `Remove "${ministry.name}"? Enrolled members will be unassigned.`,
       confirmText: 'Delete Ministry',
+      cancelText: 'Cancel',
       isDangerous: true,
+      iconType: 'danger',
       onConfirm: () => deleteMinistry(ministry.id)
     });
   };
@@ -200,7 +258,9 @@ const MainLayout = () => {
       title: 'Delete Family Household',
       message: `Delete household "${family.familyName}"? Members will be unlinked but remain in the directory.`,
       confirmText: 'Delete Family',
+      cancelText: 'Cancel',
       isDangerous: true,
+      iconType: 'danger',
       onConfirm: () => deleteFamily(family.id)
     });
   };
@@ -212,13 +272,15 @@ const MainLayout = () => {
       title: 'Reset Demo Data',
       message: 'This will reset all data back to initial EECMY YABELLO sample church dataset. All custom changes will be lost.',
       confirmText: 'Reset',
+      cancelText: 'Cancel',
       isDangerous: true,
+      iconType: 'warning',
       onConfirm: () => resetToDemoData()
     });
   };
 
   return (
-    <div className="app-layout-sidebar">
+    <div className="app-layout-sidebar animate-fade-in">
       {/* Left Sidebar Navigation */}
       <Sidebar
         activeTab={currentTab}
@@ -234,10 +296,11 @@ const MainLayout = () => {
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(true)}
           onOpenRegisterMember={handleOpenRegisterMember}
           onNavigate={handleNavigate}
+          onRequestLogout={handlePromptLogout}
         />
 
-        {/* Dynamic Main Page Content */}
-        <main className="page-main-viewport">
+        {/* Dynamic Main Page Content with Key Transition */}
+        <main key={currentTab} className="page-main-viewport animate-fade-in">
           {currentTab === 'dashboard' && (
             <Dashboard
               onNavigate={handleNavigate}
@@ -334,7 +397,9 @@ const MainLayout = () => {
         title={confirmDialog.title}
         message={confirmDialog.message}
         confirmText={confirmDialog.confirmText}
+        cancelText={confirmDialog.cancelText}
         isDangerous={confirmDialog.isDangerous}
+        iconType={confirmDialog.iconType}
         onConfirm={confirmDialog.onConfirm}
         onCancel={() => setConfirmDialog((prev) => ({ ...prev, isOpen: false }))}
       />
@@ -343,10 +408,40 @@ const MainLayout = () => {
   );
 };
 
+const AppRouter = () => {
+  const { isAuthenticated, authLoading } = useChurch();
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (!isAuthenticated) {
+        if (window.location.hash !== '#/login') {
+          window.location.hash = '#/login';
+        }
+      } else {
+        if (!window.location.hash || window.location.hash === '#/login' || window.location.hash === '#') {
+          window.location.hash = '#/dashboard';
+        }
+      }
+    }
+  }, [isAuthenticated, authLoading]);
+
+  if (authLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (!isAuthenticated) {
+    return <Login />;
+  }
+
+  return <MainLayout />;
+};
+
 export default function App() {
   return (
-    <ChurchProvider>
-      <MainLayout />
-    </ChurchProvider>
+    <ErrorBoundary>
+      <ChurchProvider>
+        <AppRouter />
+      </ChurchProvider>
+    </ErrorBoundary>
   );
 }
