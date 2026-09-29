@@ -185,7 +185,7 @@ export const MinistryModal = ({ isOpen, onClose, ministryToEdit = null }) => {
                     name="leaderName"
                     value={formData.leaderName}
                     onChange={handleChange}
-                    placeholder="e.g. Sister Angela Hayes"
+                    placeholder="e.g. Sister Aster Bekele"
                     className="form-input"
                   />
                   {errors.leaderName && <span className="form-error-msg">{errors.leaderName}</span>}

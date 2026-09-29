@@ -118,7 +118,7 @@ export const Sidebar = ({
             onClick={() => handleNavClick('baptism')}
           >
             <Award size={18} />
-            <span>Baptism Hub</span>
+            <span>Baptism</span>
             <span className="badge-counter">
               {baptizedCount}
             </span>

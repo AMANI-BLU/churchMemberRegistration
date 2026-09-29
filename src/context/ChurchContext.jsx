@@ -9,10 +9,10 @@ import {
 const ChurchContext = createContext();
 
 const STORAGE_KEYS = {
-  SETTINGS: 'church_mgmt_settings_v1',
-  MEMBERS: 'church_mgmt_members_v1',
-  FAMILIES: 'church_mgmt_families_v1',
-  MINISTRIES: 'church_mgmt_ministries_v1',
+  SETTINGS: 'church_mgmt_settings_v2',
+  MEMBERS: 'church_mgmt_members_v2',
+  FAMILIES: 'church_mgmt_families_v2',
+  MINISTRIES: 'church_mgmt_ministries_v2',
   ROLE: 'church_mgmt_current_role_v1',
   AUTH: 'church_mgmt_auth_v1',
   THEME: 'church_mgmt_theme_v1'

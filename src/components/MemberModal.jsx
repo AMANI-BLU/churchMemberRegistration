@@ -487,7 +487,7 @@ export const MemberModal = ({ isOpen, onClose, memberToEdit = null }) => {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleChange}
-                      placeholder="e.g. John"
+                      placeholder="e.g. Dawit"
                       className="form-input"
                       autoFocus
                     />
@@ -499,7 +499,7 @@ export const MemberModal = ({ isOpen, onClose, memberToEdit = null }) => {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleChange}
-                      placeholder="e.g. Doe"
+                      placeholder="e.g. Tadesse"
                       className="form-input"
                     />
                   </Field>
@@ -532,7 +532,7 @@ export const MemberModal = ({ isOpen, onClose, memberToEdit = null }) => {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      placeholder="john.doe@example.com"
+                      placeholder="dawit.tadesse@example.com"
                       className="form-input"
                     />
                   </Field>

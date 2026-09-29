@@ -5,15 +5,18 @@ import {
   Printer,
   Search,
   Check,
-  QrCode,
   Church,
   Phone,
   MapPin,
   Sparkles,
   Users,
   User,
-  ChevronDown
+  ChevronDown,
+  X,
+  QrCode,
+  Maximize2
 } from 'lucide-react';
+import { RealBarcode, RealQRCode } from '../components/IdCodeGenerators';
 
 export const IdCards = () => {
   const { settings, members, ministries } = useChurch();
@@ -27,6 +30,7 @@ export const IdCards = () => {
   const [cardTheme, setCardTheme] = useState('sapphire'); // 'sapphire', 'slate'
   const [searchQuery, setSearchQuery] = useState('');
   const [ministryFilter, setMinistryFilter] = useState('ALL');
+  const [qrModalMember, setQrModalMember] = useState(null);
 
   // Filtered members matching current search/filters
   const filteredMemberList = useMemo(() => {
@@ -287,6 +291,17 @@ export const IdCards = () => {
                 const issueYear = new Date().getFullYear();
                 const validUntil = issueYear + 3;
 
+                // Real structured verification payload for the QR code
+                const qrPayload = [
+                  `CHURCH: ${settings.churchName || 'EECMY YABELLO'}`,
+                  `NAME: ${member.firstName} ${member.lastName}`,
+                  `MEMBER ID: ${member.memberId}`,
+                  `PHONE: ${member.phone || 'N/A'}`,
+                  `MINISTRY: ${primaryMinistry}`,
+                  `BAPTISM: ${member.spiritualInfo?.baptismStatus || 'Unbaptized'}`,
+                  `ISSUED: ${issueYear} | VALID THRU: 12/${validUntil}`
+                ].join('\n');
+
                 return (
                   <div key={member.id} className="id-card-pair-wrapper">
                     {/* FRONT SIDE */}
@@ -321,9 +336,6 @@ export const IdCards = () => {
                                 <span>{member.firstName.charAt(0)}{member.lastName.charAt(0)}</span>
                               )}
                             </div>
-                            <div className="id-status-badge">
-                              {member.status === 'Active' ? 'ACTIVE' : 'MEMBER'}
-                            </div>
                           </div>
 
                           {/* Member Details */}
@@ -356,51 +368,19 @@ export const IdCards = () => {
                           </div>
                         </div>
 
-                        {/* Card Footer: SVG Barcode & QR code */}
+                        {/* Card Footer: Real Scannable Barcode & QR code */}
                         <div className="id-card-footer">
                           <div className="id-barcode-container">
-                            <svg className="id-svg-barcode" viewBox="0 0 160 28" preserveAspectRatio="none">
-                              <rect x="0" y="0" width="3" height="28" fill="#1e293b" />
-                              <rect x="5" y="0" width="1.5" height="28" fill="#1e293b" />
-                              <rect x="8" y="0" width="4" height="28" fill="#1e293b" />
-                              <rect x="14" y="0" width="2" height="28" fill="#1e293b" />
-                              <rect x="18" y="0" width="1" height="28" fill="#1e293b" />
-                              <rect x="21" y="0" width="3.5" height="28" fill="#1e293b" />
-                              <rect x="26" y="0" width="2" height="28" fill="#1e293b" />
-                              <rect x="30" y="0" width="5" height="28" fill="#1e293b" />
-                              <rect x="37" y="0" width="1.5" height="28" fill="#1e293b" />
-                              <rect x="40" y="0" width="3" height="28" fill="#1e293b" />
-                              <rect x="45" y="0" width="2" height="28" fill="#1e293b" />
-                              <rect x="49" y="0" width="4" height="28" fill="#1e293b" />
-                              <rect x="55" y="0" width="1" height="28" fill="#1e293b" />
-                              <rect x="58" y="0" width="3" height="28" fill="#1e293b" />
-                              <rect x="63" y="0" width="2" height="28" fill="#1e293b" />
-                              <rect x="67" y="0" width="4.5" height="28" fill="#1e293b" />
-                              <rect x="73" y="0" width="1" height="28" fill="#1e293b" />
-                              <rect x="76" y="0" width="3" height="28" fill="#1e293b" />
-                              <rect x="81" y="0" width="2" height="28" fill="#1e293b" />
-                              <rect x="85" y="0" width="4" height="28" fill="#1e293b" />
-                              <rect x="91" y="0" width="1.5" height="28" fill="#1e293b" />
-                              <rect x="94" y="0" width="3" height="28" fill="#1e293b" />
-                              <rect x="99" y="0" width="2.5" height="28" fill="#1e293b" />
-                              <rect x="103" y="0" width="4" height="28" fill="#1e293b" />
-                              <rect x="109" y="0" width="1.5" height="28" fill="#1e293b" />
-                              <rect x="113" y="0" width="3" height="28" fill="#1e293b" />
-                              <rect x="118" y="0" width="2" height="28" fill="#1e293b" />
-                              <rect x="122" y="0" width="4" height="28" fill="#1e293b" />
-                              <rect x="128" y="0" width="1.5" height="28" fill="#1e293b" />
-                              <rect x="132" y="0" width="3" height="28" fill="#1e293b" />
-                              <rect x="137" y="0" width="2" height="28" fill="#1e293b" />
-                              <rect x="141" y="0" width="5" height="28" fill="#1e293b" />
-                              <rect x="148" y="0" width="2" height="28" fill="#1e293b" />
-                              <rect x="152" y="0" width="3.5" height="28" fill="#1e293b" />
-                              <rect x="157" y="0" width="2" height="28" fill="#1e293b" />
-                            </svg>
+                            <RealBarcode value={member.memberId || 'MEM-000'} width={1.4} height={18} />
                             <span className="id-barcode-num">{member.memberId}</span>
                           </div>
 
-                          <div className="id-qr-badge">
-                            <QrCode size={26} color="#0f172a" />
+                          <div
+                            className="id-qr-badge"
+                            title="Click to enlarge & scan QR"
+                            onClick={() => setQrModalMember({ member, payload: qrPayload })}
+                          >
+                            <RealQRCode value={qrPayload} size={38} />
                           </div>
                         </div>
                       </div>
@@ -417,7 +397,7 @@ export const IdCards = () => {
                         <div className="id-card-back-body">
                           <div className="id-disclaimer-box">
                             <p>
-                              This card certifies that the bearer is a recognized active member of {settings.churchName}. Please present this badge for sacred ordinances, general assemblies, and official ministry functions.
+                              This card certifies that the bearer is a recognized member of {settings.churchName}. Please present this badge for sacred ordinances, general assemblies, and official ministry functions.
                             </p>
                           </div>
 
@@ -474,6 +454,56 @@ export const IdCards = () => {
           )}
         </div>
       </div>
+
+      {/* QR ZOOM & SCAN PREVIEW MODAL */}
+      {qrModalMember && (
+        <div className="qr-zoom-overlay" onClick={() => setQrModalMember(null)}>
+          <div className="qr-zoom-card" onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <QrCode size={20} color="var(--primary)" />
+                <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
+                  Scan Member QR Code
+                </h4>
+              </div>
+              <button
+                className="btn-icon"
+                onClick={() => setQrModalMember(null)}
+                style={{ width: 28, height: 28, borderRadius: '50%', background: '#f1f5f9', border: 'none', cursor: 'pointer' }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <p style={{ margin: '0 0 10px 0', fontSize: '0.8rem', color: '#64748b' }}>
+              Point any smartphone camera (iPhone Camera or Google Lens) at the code below:
+            </p>
+
+            <div className="qr-zoom-display">
+              <RealQRCode value={qrModalMember.payload} size={220} />
+            </div>
+
+            <div style={{ fontWeight: 800, fontSize: '0.94rem', color: '#0f172a', marginBottom: '4px' }}>
+              {qrModalMember.member.firstName} {qrModalMember.member.lastName}
+            </div>
+            <div style={{ fontSize: '0.78rem', color: '#64748b', marginBottom: '8px' }}>
+              ID: <strong>{qrModalMember.member.memberId}</strong>
+            </div>
+
+            <div className="qr-zoom-data">
+              {qrModalMember.payload}
+            </div>
+
+            <button
+              className="btn btn-primary"
+              style={{ width: '100%', marginTop: '16px', justifyContent: 'center' }}
+              onClick={() => setQrModalMember(null)}
+            >
+              Close Preview
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
