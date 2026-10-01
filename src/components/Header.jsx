@@ -92,6 +92,7 @@ export const Header = ({
 
         {/* User Account / Role Badge */}
         <div
+          className="header-user-chip"
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -106,14 +107,15 @@ export const Header = ({
           title={user?.email ? `Signed in as ${user.email}` : 'Logged in'}
         >
           <User size={13} />
-          <span>{displayName}</span>
+          <span className="header-user-chip__name">{displayName}</span>
         </div>
 
         {/* Primary Action */}
         <button
-          className="btn btn-primary btn-sm"
+          className="btn btn-primary btn-sm header-register-btn"
           onClick={onOpenRegisterMember}
           type="button"
+          aria-label="Register a new member"
         >
           <Plus size={15} />
           <span>Register Member</span>

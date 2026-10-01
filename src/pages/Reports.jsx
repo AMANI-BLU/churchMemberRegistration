@@ -198,7 +198,7 @@ export const Reports = () => {
       </div>
 
       {/* Period Selector Bar (Year & Month Filters) */}
-      <div className="filter-bar no-print" style={{ background: '#ffffff', border: '1px solid var(--border-color)' }}>
+      <div className="filter-bar no-print" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Calendar size={16} color="var(--primary)" />

@@ -16,7 +16,7 @@
 .sidebar {
   width: 260px;
   min-width: 260px;
-  background: #0f172a;
+  background: var(--bg-nav);
   color: #f8fafc;
   display: flex;
   flex-direction: column;
@@ -159,7 +159,7 @@
 .sidebar-footer {
   padding: 12px 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: #090e1a;
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .sidebar-role-card {
@@ -243,10 +243,13 @@
 
 /* Top Header Bar */
 .top-header {
-  height: 60px;
-  background: #ffffff;
+  min-height: 60px;
+  height: auto;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: var(--bg-card);
   border-bottom: 1px solid var(--border-color);
-  padding: 0 24px;
+  padding-left: 24px;
+  padding-right: 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -267,7 +270,7 @@
   width: 36px;
   height: 36px;
   border-radius: var(--radius-md);
-  background: #f1f5f9;
+  background: var(--bg-app);
   border: 1px solid var(--border-color);
   align-items: center;
   justify-content: center;
@@ -302,10 +305,22 @@
   font-size: 0.76rem;
   font-weight: 600;
   color: var(--text-secondary);
-  background: #f1f5f9;
+  background: var(--bg-app);
   padding: 4px 10px;
   border-radius: var(--radius-full);
   border: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+/* Header user chip (inline-styled in JSX) — responsive helpers */
+.header-user-chip {
+  white-space: nowrap;
+}
+
+.header-user-chip__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
 }
 
 .page-main-viewport {
@@ -336,6 +351,7 @@
   font-weight: 800;
   color: var(--text-primary);
   letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
 }
 
 .page-header-info p {
@@ -404,6 +420,7 @@
    ========================================================= */
 .dash-greeting {
   margin-bottom: 22px;
+  flex-wrap: wrap;
 }
 .dash-greeting__title {
   font-size: 1.6rem;
@@ -425,8 +442,8 @@
 }
 
 .dash-alert {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: var(--danger-light);
+  border: 1px solid var(--danger-border);
   border-left: 3px solid var(--danger);
   border-radius: var(--radius-md);
   padding: 12px 16px;
@@ -442,7 +459,7 @@
   align-items: center;
   gap: 8px;
   font-size: 0.875rem;
-  color: #991b1b;
+  color: var(--danger);
   font-weight: 500;
 }
 
@@ -589,8 +606,9 @@
 }
 
 @media (max-width: 576px) {
-  .dash-stats {
-    grid-template-columns: 1fr;
+  .page-header-actions .btn {
+    flex: 1 1 calc(50% - 10px);
+    justify-content: center;
   }
 }
 
@@ -704,7 +722,7 @@
   height: 30px;
   border-radius: var(--radius-full);
   border: 2px solid var(--border-color);
-  background: #fff;
+  background: var(--bg-card);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -763,14 +781,23 @@
     top: 0;
     left: 0;
     bottom: 0;
+    width: min(280px, 85vw);
+    min-width: 0;
     transform: translateX(-100%);
     z-index: 60;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-shadow: 8px 0 24px rgba(0, 0, 0, 0.28);
   }
   .sidebar.mobile-open {
     transform: translateX(0);
   }
   .sidebar-close-mobile {
     display: flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
   }
   .sidebar-overlay {
     display: block;
@@ -781,16 +808,41 @@
     z-index: 55;
   }
 
-  .header-menu-btn { display: flex; }
-  .page-container { padding: 18px 16px 40px; }
+  .header-menu-btn { display: flex; min-width: 42px; min-height: 42px; }
+  .page-container { padding: 18px 16px calc(40px + env(safe-area-inset-bottom, 0px)); }
+
+  /* Bigger touch targets on touch devices */
+  .btn-icon { min-width: 42px; min-height: 42px; }
+  .btn-icon.sm { min-width: 38px; min-height: 38px; }
+  .pagination-btn { width: 40px; height: 40px; }
+  .modal-close-btn { min-width: 44px; min-height: 44px; }
 }
 
 @media (max-width: 640px) {
-  .top-header { padding: 0 14px; }
+  .top-header {
+    padding: calc(6px + env(safe-area-inset-top, 0px)) 14px 6px;
+    gap: 8px;
+    row-gap: 8px;
+    flex-wrap: wrap;
+  }
   .header-church-sub { display: none; }
+  .header-church-name {
+    max-width: 46vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .header-date-pill { display: none; }
+  .header-user-chip { display: none; }
+  .header-right { gap: 8px; }
+  .header-right .btn-primary span { display: none; }
+  .header-right .btn-primary { padding: 9px 12px; }
 
   .dash-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .dash-stat-box { min-height: 118px; }
+  .dash-stat-box__value { font-size: 1.9rem; }
+  .dash-stat-box__inner { padding: 14px 14px 10px; }
+  .dash-stat-box__label { font-size: 0.86rem; }
   .dash-actions { gap: 8px; }
   .dash-actions .btn { flex: 1; justify-content: center; }
 
@@ -803,9 +855,27 @@
   .desktop-table-view { display: none; }
 
   .wizard-step__label { display: none; }
+
+  .table-pagination-footer {
+    justify-content: center;
+    text-align: center;
+  }
+  .bulk-actions-banner { flex-direction: column; align-items: stretch; }
+  .bulk-action-buttons { flex-wrap: wrap; }
+  .bulk-action-buttons .btn { flex: 1; justify-content: center; }
 }
 
 @media (max-width: 480px) {
   .dash-stats { gap: 8px; }
-  .page-container { padding: 14px 12px 32px; }
+  .dash-stat-box__value { font-size: 1.65rem; }
+  .dash-stat-box__label { font-size: 0.8rem; }
+  .dash-stat-box__sub { font-size: 0.68rem; }
+  .page-container { padding: 14px 12px calc(32px + env(safe-area-inset-bottom, 0px)); }
+  .page-header-info h2 { font-size: 1.12rem; }
+  .header-church-name { max-width: 38vw; }
+}
+
+@media (max-width: 380px) {
+  .header-church-name { display: none; }
+  .dash-stats { grid-template-columns: 1fr; }
 }

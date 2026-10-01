@@ -614,12 +614,12 @@ CREATE POLICY "Public full access church_settings" ON public.church_settings FOR
                 <div
                   style={{
                     padding: '10px 14px',
-                    background: '#ecfdf5',
-                    color: '#065f46',
+                    background: 'var(--success-light)',
+                    color: 'var(--primary)',
                     borderRadius: 'var(--radius-sm)',
                     fontSize: '0.84rem',
                     marginBottom: '16px',
-                    border: '1px solid #a7f3d0'
+                    border: '1px solid var(--success-border)'
                   }}
                 >
                   <CheckCircle2 size={15} style={{ display: 'inline', marginRight: '6px' }} />
@@ -775,8 +775,8 @@ CREATE POLICY "Public full access church_settings" ON public.church_settings FOR
                 </div>
               </div>
 
-              <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
-                <button type="submit" className="btn btn-primary" style={{ minWidth: '200px' }}>
+              <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap', gap: '8px' }}>
+                <button type="submit" className="btn btn-primary settings-save-btn">
                   <Check size={16} />
                   <span>Save Church Settings</span>
                 </button>

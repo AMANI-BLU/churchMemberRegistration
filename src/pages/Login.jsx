@@ -217,11 +217,11 @@ export const Login = () => {
             <div
               style={{
                 padding: '10px 14px',
-                background: '#ecfdf5',
-                color: '#065f46',
+                background: 'var(--success-light)',
+                color: 'var(--primary)',
                 borderRadius: 'var(--radius-sm)',
                 fontSize: '0.84rem',
-                border: '1px solid #a7f3d0',
+                border: '1px solid var(--success-border)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',

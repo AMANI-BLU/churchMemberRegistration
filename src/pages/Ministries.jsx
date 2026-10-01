@@ -116,7 +116,7 @@ export const Ministries = ({
                 }}
               >
                 {/* Header */}
-                <div className="card-header" style={{ background: '#f8fafc' }}>
+                <div className="card-header" style={{ background: 'var(--bg-app)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <div
                       style={{
@@ -169,7 +169,7 @@ export const Ministries = ({
                   )}
 
                   {/* Leader and Meeting Info */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.82rem', background: '#f8fafc', padding: '10px', borderRadius: 'var(--radius-md)' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.82rem', background: 'var(--bg-app)', padding: '10px', borderRadius: 'var(--radius-md)' }}>
                     {min.leaderName && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-primary)' }}>
                         <User size={13} color="var(--primary)" />
@@ -208,7 +208,7 @@ export const Ministries = ({
                             key={m.id}
                             style={{
                               padding: '4px 10px',
-                              background: '#f1f5f9',
+                              background: 'var(--border-light)',
                               borderRadius: 'var(--radius-sm)',
                               fontSize: '0.78rem',
                               cursor: 'pointer',

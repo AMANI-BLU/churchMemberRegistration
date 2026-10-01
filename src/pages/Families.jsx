@@ -73,7 +73,7 @@ export const Families = ({
 
             return (
               <div key={fam.id} className="card" style={{ display: 'flex', flexDirection: 'column' }}>
-                <div className="card-header" style={{ background: '#f8fafc' }}>
+                <div className="card-header" style={{ background: 'var(--bg-app)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <div
                       style={{
@@ -153,7 +153,7 @@ export const Families = ({
                             key={m.id}
                             style={{
                               padding: '6px 12px',
-                              background: '#f8fafc',
+                              background: 'var(--bg-app)',
                               border: '1px solid var(--border-color)',
                               borderRadius: 'var(--radius-md)',
                               fontSize: '0.8rem',

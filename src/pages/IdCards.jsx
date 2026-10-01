@@ -145,7 +145,7 @@ export const IdCards = ({ initialSelectedIds = null }) => {
       </div>
 
       {/* UX Controls & Selection Card */}
-      <div className="card no-print" style={{ marginBottom: '18px', background: '#ffffff' }}>
+      <div className="card no-print" style={{ marginBottom: '18px', background: 'var(--bg-card)' }}>
         <div className="card-body" style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {/* Top Row: Primary Member Selector + Search + Batch Actions */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
@@ -252,7 +252,7 @@ export const IdCards = ({ initialSelectedIds = null }) => {
             </div>
 
             {/* Search Input */}
-            <div className="search-input-wrapper" style={{ minWidth: '220px', position: 'relative' }}>
+            <div className="search-input-wrapper" style={{ position: 'relative' }}>
               <Search size={13} className="search-icon-inside" />
               <input
                 type="text"
@@ -290,8 +290,8 @@ export const IdCards = ({ initialSelectedIds = null }) => {
       </div>
 
       {/* Main Preview Area */}
-      <div className="card" style={{ background: '#f8fafc', border: '1px solid var(--border-color)' }}>
-        <div className="card-header no-print" style={{ background: '#ffffff' }}>
+      <div className="card" style={{ background: 'var(--bg-app)', border: '1px solid var(--border-color)' }}>
+        <div className="card-header no-print" style={{ background: 'var(--bg-card)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <CreditCard size={18} color="var(--primary)" />
             <span style={{ fontWeight: '700', fontSize: '0.94rem', color: 'var(--text-primary)' }}>
@@ -314,7 +314,7 @@ export const IdCards = ({ initialSelectedIds = null }) => {
           </div>
         </div>
 
-        <div className="card-body id-cards-preview-scroll" style={{ background: '#f1f5f9', padding: '28px' }}>
+        <div className="card-body id-cards-preview-scroll" style={{ background: 'var(--border-light)', padding: '28px' }}>
           {displayMembers.length > 0 ? (
             <div className="id-cards-grid id-theme-sapphire">
               {displayMembers.map((member) => {
@@ -552,20 +552,20 @@ export const IdCards = ({ initialSelectedIds = null }) => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <QrCode size={20} color="var(--primary)" />
-                <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#0f172a' }}>
+                <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                   Scan Member QR Code
                 </h4>
               </div>
               <button
                 className="btn-icon"
                 onClick={() => setQrModalMember(null)}
-                style={{ width: 28, height: 28, borderRadius: '50%', background: '#f1f5f9', border: 'none', cursor: 'pointer' }}
+                style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--bg-app)', border: 'none', cursor: 'pointer' }}
               >
                 <X size={16} />
               </button>
             </div>
 
-            <p style={{ margin: '0 0 10px 0', fontSize: '0.8rem', color: '#64748b' }}>
+            <p style={{ margin: '0 0 10px 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
               Point any smartphone camera (iPhone Camera or Google Lens) at the code below:
             </p>
 
@@ -573,10 +573,10 @@ export const IdCards = ({ initialSelectedIds = null }) => {
               <RealQRCode value={qrModalMember.payload} size={220} />
             </div>
 
-            <div style={{ fontWeight: 800, fontSize: '0.94rem', color: '#0f172a', marginBottom: '4px' }}>
+            <div style={{ fontWeight: 800, fontSize: '0.94rem', color: 'var(--text-primary)', marginBottom: '4px' }}>
               {qrModalMember.member.firstName} {qrModalMember.member.lastName}
             </div>
-            <div style={{ fontSize: '0.78rem', color: '#64748b', marginBottom: '8px' }}>
+            <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
               ID: <strong>{qrModalMember.member.memberId}</strong>
             </div>
 
